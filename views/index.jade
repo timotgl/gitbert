@@ -14,6 +14,11 @@ block content
 
         p
             span.fileSelectLabel
+                label(for='branch') Branch
+            input#branch(type='text', value='master')
+
+        p
+            span.fileSelectLabel
                 label(for='file') Path to file
             input#file(type='text', value='core/commands.py')
         p
