@@ -1,0 +1,9 @@
+{
+    "name": "gitbert-demo",
+    "version": "0.0.1",
+    "dependencies": {
+        "jquery": "2.0.3",
+        "lodash": "2.2.1",
+        "backbone": "1.1.0"
+    }   
+}

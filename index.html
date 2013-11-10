@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+    <head>
+        <meta charset="utf-8">
+        <title>Gitbert demo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="bower_components/jquery/jquery.min.js"></script>
+        <script src="bower_components/lodash/dist/lodash.underscore.min.js"></script>
+        <script src="bower_components/backbone/backbone-min.js"></script>
+        <style>
+            pre {
+                display:none;
+            }
+            code {
+                display: block;
+                font-family: Monaco;
+                font-size: 0.8em;
+                background-color: lightgray;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Gitbert</h1>
+        <h2>timotgl/gitbert/demo.js</h2>
+        <p>Press left/right arrow keys to navigate commits.</p>
+        <p>Showing commit <span id="currentCommitIndex">1</span>/<span>5</span>
+        <pre>
+<span>c44d4740d1c34cf0d7b285c5f2bc20fe5d563361 Added derp function</span>
+            <code>console.log('file content will be shown here!');
+
+var derp = function (x) {
+    console.log(x +  'is derp.');
+};</code>
+        </pre>
+        <pre>
+<span>bf57fc23449d1ea7caf636d387446af01d7f8dc8 Logging when execution is finished</span>
+            <code>console.log('file content will be shown here!');
+
+var derp = function (x) {
+    console.log(x +  'is derp.');
+    console.log('derp function is done now.');
+};</code>
+        </pre>
+        <pre>
+<span>8522b51a185007e659bcda5b83f0f8dd8f31e9a1 Fixed typo</span>
+            <code>console.log('file content will be shown here!');
+
+var derp = function (x) {
+    console.log(x +  'is SO derp.');
+    console.log('derp function is done now.');
+};</code>
+        </pre>
+        <pre>
+<span>3625a5b91b8825a70a4e1c1bf894cd7c4389bdd3 Renamed derp to derpFunc</span>
+            <code>console.log('file content will be shown here!');
+
+var derpFunc = function (x) {
+    console.log(x +  'is SO derp.');
+    console.log('derp function is done now.');
+};</code>
+        </pre>
+        <pre>
+<span>a531bcdaebf4349b995c1f4ffc62da415cca7afa Forgot to actually call the function</span>
+            <code>console.log('file content will be shown here!');
+
+var derpFunc = function (x) {
+    console.log(x +  'is SO derp.');
+    console.log('derp function is done now.');
+};
+
+derpFunc('your dog');</code>
+        </pre>
+        <script src="FileContentView.js"></script>
+    </body>
+</html>
