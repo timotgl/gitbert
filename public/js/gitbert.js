@@ -4,12 +4,14 @@ gb.submitFile = function(event) {
     event.preventDefault();
     var username = $(gb.selectors.userInput).val();
     var repo = $(gb.selectors.repoInput).val();
+    var branch = $(gb.selectors.branchInput).val();
     var file = $(gb.selectors.fileInput).val();
     $.ajax({
         url: '/filehistory',
         data: {
             user: username,
             repo: repo,
+            branch: branch,
             file: file
         },
         error: gb.getFileHistoryError,
