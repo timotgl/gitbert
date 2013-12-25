@@ -1,0 +1,51 @@
+doctype 5
+html
+    head
+        title #{title} - Gitbert
+        link(rel='stylesheet', href='/css/style.css')
+    body
+        header
+            h1 Gitbert
+        .container
+            .main-content
+                p Enter a file on GitHub:
+                form#fileSelect
+                    p
+                        span.fileSelectLabel
+                            label(for='user') Username
+                        input#user(type='text', value='delivero')
+
+                    p
+                        span.fileSelectLabel
+                            label(for='repo') Repository
+                        input#repo(type='text', value='core_frontend')
+
+                    p
+                        span.fileSelectLabel
+                            label(for='branch') Branch
+                        input#branch(type='text', value='master')
+
+                    p
+                        span.fileSelectLabel
+                            label(for='file') Path to file
+                        input#file(type='text', value='core/commands.py')
+                    p
+                        input(type='submit', value='Scan file history')
+                p#getFileHistoryError
+                pre#fileHistory
+                    code#fileContent
+        script(src='js/jquery-1.9.1.min.js')
+        script(src='js/gitbert.js')
+        script
+            $(document).ready(function () {
+                gb.init({
+                    fileSelectForm: 'form#fileSelect',
+                    userInput: 'input#user',
+                    repoInput: 'input#repo',
+                    branchInput: 'input#branch',
+                    fileInput: 'input#file',
+                    getFileHistoryError: 'p#getFileHistoryError',
+                    fileHistory: 'pre#fileHistory',
+                    fileContent: 'code#fileContent'
+                });
+            });
