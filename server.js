@@ -21,6 +21,12 @@ var koa = require('koa'),
 
 // gh.authenticate({type: 'basic', username: ghCredentials.username, password: ghCredentials.pw});
 
+/**
+ * Extract GitHub user, repo, branch, and file path from url.
+ *
+ * @param {string} url gitbert specific URL pointing to a file on GitHub
+ * @return {Object|null} Object or null on error
+ */
 function parseGitHubUrl (url) {
     var numMinSegments = 4,
         split = url.split('/');
@@ -33,38 +39,52 @@ function parseGitHubUrl (url) {
     return {
         user: split[2],
         repo: split[3],
-        sha: split[4], // branch
+        sha: split[4], // GitHub API expects this, but can also be used as branch.
         
         // Concatenate the segments making up the file path
         path: split.slice(numMinSegments + 1).join('/')
     };
 }
 
+/**
+ * Prefix the relative URL to a static file with the base URL.
+ *
+ * @param {string} relativeUrl The URL relative to the web server root
+ * @return {string} Absolute URL
+ */
 function getStaticFileUrl (relativeUrl) {
     return baseUrl + relativeUrl;
 };
 
+/**
+ * Serve single page app with list of commits bootstrapped into markup
+ */
 function *getCommitsMiddleWare (next) {
-    if (this.request.method === 'GET' && this.request.url.indexOf('/gh/') === 0) {
-        var file = parseGitHubUrl(this.request.url);
-        if (file) {
-            var commits, commitsJson;
-            
-            // Fetch array of commit objects, the most recent commit comes first.
-            commits = yield getCommits(file);
-            commitsJson = JSON.stringify(commits);
-
-            this.body = nunjucksEnv.render('index.html', {
-                pageTitle: 'gitbert',
-                baseUrl: 'http://localhost:' + port + '/',
-                heading: 'gitbert',
-                fileName: 'filename here',
-                commitsJson: commitsJson
-            });
-        } else {
-            this.body = 'Unable to parse GitHub file from URL';
-        }
+    var commits, commitsJson;
+    
+    // Only use this middleware if the URL starts with '/gh/'
+    if (this.request.url.substr(0, 4) !== '/gh/') {
+        return;
     }
+    
+    var file = parseGitHubUrl(this.request.url);
+    
+    // Handle invalid URL
+    if (file === null) {
+        this.body = 'Unable to parse GitHub file from URL';
+        return;
+    }
+
+    // Fetch array of commit objects, the most recent commit comes first.
+    commits = yield getCommits(file);
+    commitsJson = JSON.stringify(commits);
+
+    this.body = nunjucksEnv.render('index.html', {
+        pageTitle: 'gitbert',
+        heading: 'gitbert',
+        fileName: file.path,
+        commitsJson: commitsJson
+    });
 }
 
 // Prepare template rendering
