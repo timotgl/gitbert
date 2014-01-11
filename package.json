@@ -13,7 +13,8 @@
         "koa-logger": "1.1.0",
         "koa-static": "1.4.0",
         "github": "0.1.12",
-        "thunkify": "0.0.1"
+        "thunkify": "0.0.1",
+        "nunjucks": "1.0.1"
     },
     "engines": {
         "node": ">=0.11.3",
