@@ -1,115 +1,69 @@
-var express = require('express'),
-    stylus = require('stylus'),
-    nib = require('nib'),
-    GitHubApi = require('github'),
-    GitHubCredentials = require('./github-credentials.js'),
-    Q = require('q');
-
-var app = express();
-
-var github = new GitHubApi({
-    version: "3.0.0", // required
-    timeout: 5000 // optional
-});
-
-github.authenticate({
-    type: "basic",
-    username: GitHubCredentials.username,
-    password: GitHubCredentials.pw
-});
-
-function compile(str, path) {
-    return stylus(str).set('filename', path).use(nib())
-};
-
-var callback = function (error, response) {
-    if (error) {
-        console.log(error);
-    } else {
-        console.log(response.commit.author.date);
-        console.log(response.commit.author.name);
-        console.log(response.commit.message);
-    }
-};
-
-var getFirstCommit = function (response) {
-    var firstCommit = response[0];
-    var secondCommit = response[1];
-    // compareCommits:user, repo, base, head
-    github.repos.getCommit(
-        {
-            user: user,
-            repo: repo,
-            sha: firstCommit.sha
-        },
-        callback
-    );
-};
-
-app.set('views', __dirname + '/views')
-app.set('view engine', 'jade')
-
-app.use(express.logger('dev'))
-
-app.use(stylus.middleware({
-    src: __dirname + '/public',
-    compile: compile
-}))
-
-app.use(express.static(__dirname + '/public'));
-
-app.get('/', function (req, res) {
-    res.render('index', {title: 'Home'})
-});
-
-var user, repo, branch, file;
-app.get('/filehistory', function (req, res) {
-    console.log(
-        'File history requested: user=', req.query.user,
-        '  repo=', req.query.repo,
-        '  branch=', req.query.branch,
-        '  file=', req.query.file
-    );
-    user = req.query.user;
-    repo = req.query.repo;
-    branch = req.query.branch;
-    file = req.query.file;
+var koa = require('koa'),
+    logger = require('koa-logger'),
+    staticFiles = require('koa-static'),
+    thunkify = require('thunkify'),
+    app = koa(),
+    port = 3000,
     
-    github.repos.getCommits(
-        {
-            user: user,
-            repo: repo,
-            sha: branch,
-            path: file
-        },
-        function (error, response) {
-            if (error) {
-                console.log('Error getting commits:', error);
-                res.send({error: error});
-            } else {
-                getFirstCommit(response);
-            }
+    // Minimum length of a URL (file on GitHub). At least one char for user,
+    // repo, branch, file name as well as forward slashes.
+    GH_URL_MIN_LENGTH = 7,
+    
+    GitHubApiClient = require('github'),
+    gh = new GitHubApiClient({version: '3.0.0'}),
+    getCommits = thunkify(gh.repos.getCommits),
+    getCommit = thunkify(gh.repos.getCommit),
+    ghCredentials = require('./github-credentials.js');
+
+/*
+gh.authenticate({
+    type: 'basic',
+    username: ghCredentials.username,
+    password: ghCredentials.pw
+});
+*/
+
+app.use(logger());
+app.use(staticFiles('.'));
+
+function parseGitHubUrl (url) {
+    var numMinSegments = 4,
+        split = url.split('/');
+    
+    // Handle insufficient number of segments. Mind the forward slash at the beginning of the URL.
+    if (split.length < numMinSegments + 1) {
+        return null;
+    }
+
+    return {
+        user: split[1],
+        repo: split[2],
+        sha: split[3], // branch
+        
+        // Concatenate the segments making up the file path
+        path: split.slice(numMinSegments).join('/')
+    };
+}
+
+app.use(function *(){
+    if (this.request.method === 'GET' && this.request.url.length >= GH_URL_MIN_LENGTH) {
+        var file = parseGitHubUrl(this.request.url);
+        if (file) {
+            this.body = this.request.url;
+            var commits = yield getCommits(file);
+            var firstCommit = yield getCommit({
+                user: file.user,
+                repo: file.repo,
+                sha: commits[commits.length - 1].sha
+            });
+            this.body = JSON.stringify(firstCommit);
+        } else {
+            this.body = 'Unable to parse GitHub file from URL';
         }
-    );
-    /*
-    github.repos.getContent(
-        {
-            user: req.query.user,
-            repo: req.query.repo,
-            path: req.query.file
-        },
-        function(error, response) {
-            if (error) {
-                console.log('Error getting content:', error);
-                res.send({error: error});
-            } else {
-                var fileContent = new Buffer(response.content, 'base64').toString();
-                res.send({content: fileContent});
-            }
-        }
-    );
-    */
+    } else {
+        this.body = 'The URL does not seem to be a file on GitHub.';
+    }
 });
 
-app.listen(3000);
-console.log('Listening on port 3000');
+app.listen(port);
+console.log('Listening on port', port);
