@@ -12,16 +12,10 @@ var koa = require('koa'),
     GitHubApiClient = require('github'),
     gh = new GitHubApiClient({version: '3.0.0'}),
     getCommits = thunkify(gh.repos.getCommits),
-    getCommit = thunkify(gh.repos.getCommit),
-    ghCredentials = require('./github-credentials.js');
+    getCommit = thunkify(gh.repos.getCommit);
+    //ghCredentials = require('./github-credentials.js');
 
-/*
-gh.authenticate({
-    type: 'basic',
-    username: ghCredentials.username,
-    password: ghCredentials.pw
-});
-*/
+// gh.authenticate({type: 'basic', username: ghCredentials.username, password: ghCredentials.pw});
 
 app.use(logger());
 app.use(staticFiles('.'));
