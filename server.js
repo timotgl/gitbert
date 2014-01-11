@@ -43,14 +43,13 @@ app.use(function *(){
     if (this.request.method === 'GET' && this.request.url.length >= GH_URL_MIN_LENGTH) {
         var file = parseGitHubUrl(this.request.url);
         if (file) {
-            this.body = this.request.url;
-            var commits = yield getCommits(file);
-            var firstCommit = yield getCommit({
-                user: file.user,
-                repo: file.repo,
-                sha: commits[commits.length - 1].sha
-            });
-            this.body = JSON.stringify(firstCommit);
+            var commits, commitsJson;
+            
+            // Fetch array of commit objects, the most recent commit comes first.
+            commits = yield getCommits(file);
+            commitsJson = JSON.stringify(commits);
+            this.body = '<h1>HTML here with commitsJson bootstrapped into it</h1>' + 
+                '<script>window.commits = ' + commitsJson + '</script>';
         } else {
             this.body = 'Unable to parse GitHub file from URL';
         }
