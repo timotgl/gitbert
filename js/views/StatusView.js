@@ -1,5 +1,7 @@
 /**
- * App status view. Displays loading progress and notifications.
+ * App status view singleton.
+ * 
+ * Displays loading progress and notifications.
  */
 (function () {
     GitBert.statusView = {};
