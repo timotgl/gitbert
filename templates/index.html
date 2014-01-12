@@ -1,25 +1,22 @@
 <!DOCTYPE html>
     <head>
-        <meta charset="utf-8">
         <title>{{ pageTitle }}</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="{{ 'css/main.css' | staticFileUrl }}" rel="stylesheet" type="text/css" media="all">
     </head>
     <body>
         <header>
             <h1>{{ heading }}</h1>
-            <h2>{{ fileName }}</h2>
+            <h2>{{ file }}</h2>
         </header>
         <script src="{{ 'bower_components/jquery/jquery.min.js' | staticFileUrl }}"></script>
         <script src="{{ 'bower_components/lodash/dist/lodash.underscore.min.js' | staticFileUrl}}"></script>
         <script src="{{ 'bower_components/backbone/backbone-min.js' | staticFileUrl }}"></script>
+        <script src="{{ 'bower_components/react/react.min.js' | staticFileUrl }}"></script>
+        <script>window.GitBert = {};</script>
+        <script src="{{ 'js/views/StatusView.js' | staticFileUrl }}"></script>
+        <script src="{{ 'js/gitbert.js' | staticFileUrl }}"></script>
         <script>
-            window.commits = {{ commitsJson }};
-            $(function () {
-                _.each(commits, function (commit) {
-                    console.log(commit.commit.message);
-                });
-            })
+            GitBert.init({{ commitsJson }});
         </script>
     </body>
 </html>
