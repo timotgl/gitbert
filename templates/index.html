@@ -12,7 +12,11 @@
         <script src="{{ 'bower_components/lodash/dist/lodash.underscore.min.js' | staticFileUrl}}"></script>
         <script src="{{ 'bower_components/backbone/backbone-min.js' | staticFileUrl }}"></script>
         <script src="{{ 'bower_components/react/react.min.js' | staticFileUrl }}"></script>
-        <script>window.GitBert = {};</script>
+        <script>
+            // App namespace
+            window.GitBert = {};
+        </script>
+        <script src="{{ 'js/models/CommitModel.js' | staticFileUrl }}"></script>
         <script src="{{ 'js/views/StatusView.js' | staticFileUrl }}"></script>
         <script src="{{ 'js/main.js' | staticFileUrl }}"></script>
         <script>
