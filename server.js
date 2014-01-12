@@ -75,14 +75,15 @@ function *getCommitsMiddleWare (next) {
         return;
     }
 
-    // Fetch array of commit objects, the most recent commit comes first.
+    // Fetch array of commit objects from GitHub, the most recent commit comes first.
+    console.log('Fetching commits for ' + file.path + ' from GitHub..');
     commits = yield getCommits(file);
     commitsJson = JSON.stringify(commits);
 
     this.body = nunjucksEnv.render('index.html', {
         pageTitle: 'gitbert',
         heading: 'gitbert',
-        fileName: file.path,
+        file: this.request.url.substr(4),
         commitsJson: commitsJson
     });
 }
