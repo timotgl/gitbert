@@ -16,10 +16,10 @@
         });
         GitBert.commitsOrder.reverse();
 
-        GitBert.statusView.showFetchingCommits(commits.length);
+        GitBert.statusView.initFetchingCommits(GitBert.commitsOrder.length);
 
         // Get list of deferreds for each commit to be fetched
-        var allCommitsFetched = _.map(GitBert.commits, function (model) {
+        var allCommitsFetched = _.map(GitBert.commits, function (model, index) {
             return model.willBeFetched();
         });
 
