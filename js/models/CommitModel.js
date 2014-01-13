@@ -12,14 +12,14 @@
         this.sha = data.sha;
     }
     
-    Commit.prototype.printSha = function () {
-        console.log(this.sha);
+    Commit.prototype.getUrl = function () {
+        return 'http://localhost:3000/gh/' + this.sha;
     };
     
     Commit.prototype.willBeFetched = function () {
         var deferred = $.Deferred();
         $.get(
-            'http://localhost:3000/gh/' + this.sha,
+            this.getUrl(),
             function (data) {
                 console.log(data);
                 deferred.resolve(data);
