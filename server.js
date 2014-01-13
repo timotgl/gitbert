@@ -1,6 +1,7 @@
 var koa = require('koa'),
     logger = require('koa-logger'),
     staticFiles = require('koa-static'),
+    router = require('koa-router'),
     thunkify = require('thunkify'),
     nunjucks = require('nunjucks'),
     app = koa(),
@@ -8,41 +9,30 @@ var koa = require('koa'),
     
     // Base URL used to include static files in the frontend.
     baseUrl = 'http://localhost:' + port + '/',
-    
-    // Minimum length of a URL (file on GitHub). At least one char for user,
-    // repo, branch, file name as well as forward slashes.
-    GH_URL_MIN_LENGTH = 7,
+
+    COMMITS_BY_FILE_ROUTE_REGEX = /^\/gh\/(.+?)\/(.+?)\/(.+?)\/(.+)/,
     
     GitHubApiClient = require('github'),
     gh = new GitHubApiClient({version: '3.0.0'}),
     getCommits = thunkify(gh.repos.getCommits),
     getCommit = thunkify(gh.repos.getCommit);
-    //ghCredentials = require('./github-credentials.js');
+    ghCredentials = require('./github-credentials.js');
 
-// gh.authenticate({type: 'basic', username: ghCredentials.username, password: ghCredentials.pw});
+gh.authenticate({type: 'basic', username: ghCredentials.username, password: ghCredentials.pw});
 
 /**
  * Extract GitHub user, repo, branch, and file path from url.
  *
  * @param {string} url gitbert specific URL pointing to a file on GitHub
- * @return {Object|null} Object or null on error
+ * @return {Object} Object containing user, repo, branch, and path.
  */
 function parseGitHubUrl (url) {
-    var numMinSegments = 4,
-        split = url.split('/');
-    
-    // Handle insufficient number of segments. Mind the '/gh/' prefix in the URL.
-    if (split.length < numMinSegments + 2) {
-        return null;
-    }
-
+    var matches = url.match(COMMITS_BY_FILE_ROUTE_REGEX);
     return {
-        user: split[2],
-        repo: split[3],
-        sha: split[4], // GitHub API expects this, but can also be used as branch.
-        
-        // Concatenate the segments making up the file path
-        path: split.slice(numMinSegments + 1).join('/')
+        user : matches[1],
+        repo : matches[2],
+        sha  : matches[3], // GitHub API expects this, but can also be used as branch.
+        path : matches[4]
     };
 }
 
@@ -56,31 +46,29 @@ function getStaticFileUrl (relativeUrl) {
     return baseUrl + relativeUrl;
 };
 
+function *fetchCommit (next) {
+    var commit = yield getCommit({
+        user : this.params.user,
+        repo : this.params.repo,
+        sha  : this.params.sha
+    });
+    this.body = JSON.stringify(commit);
+};
+
 /**
  * Serve single page app with list of commits bootstrapped into markup
  */
-function *getCommitsMiddleWare (next) {
-    var commits, commitsJson;
-    
-    // Only use this middleware if the URL starts with '/gh/'
-    if (this.request.url.substr(0, 4) !== '/gh/') {
-        return;
-    }
-    
+function *fetchCommitsByFile (next) {
     var file = parseGitHubUrl(this.request.url);
-    
-    // Handle invalid URL
-    if (file === null) {
-        this.body = 'Unable to parse GitHub file from URL';
-        return;
-    }
 
     // Fetch array of commit objects from GitHub, the most recent commit comes first.
-    console.log('Fetching commits for ' + file.path + ' from GitHub..');
     commits = yield getCommits(file);
     commitsJson = JSON.stringify(commits);
 
     this.body = nunjucksEnv.render('index.html', {
+        baseUrl: baseUrl,
+        githubUser: file.user,
+        githubRepo: file.repo,
         pageTitle: 'gitbert',
         heading: 'gitbert',
         file: this.request.url.substr(4),
@@ -95,7 +83,11 @@ nunjucksEnv.addFilter('staticFileUrl', getStaticFileUrl);
 // Attach middlewares
 app.use(logger());
 app.use(staticFiles('.'));
-app.use(getCommitsMiddleWare);
+app.use(router(app));
+
+// Define routes
+app.get('/gh/:user/:repo/:sha', fetchCommit);
+app.get(COMMITS_BY_FILE_ROUTE_REGEX, fetchCommitsByFile);
 
 // Launch server
 app.listen(port);
