@@ -10,18 +10,24 @@
         this.committer = data.commit.committer;
         this.message = data.commit.message;
         this.sha = data.sha;
+        this.fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
     }
     
-    Commit.prototype.getUrl = function () {
-        return 'http://localhost:3000/gh/' + this.sha;
+    Commit.prototype.getFetchUrl = function () {
+        return this.fetchUrlTemplate({
+            baseUrl: GitBert.constants.baseUrl,
+            user: GitBert.constants.github.user,
+            repo: GitBert.constants.github.repo,
+            sha: this.sha
+        });
     };
     
     Commit.prototype.willBeFetched = function () {
         var deferred = $.Deferred();
         $.get(
-            this.getUrl(),
+            this.getFetchUrl(),
             function (data) {
-                console.log(data);
+                GitBert.statusView.commitFetched();
                 deferred.resolve(data);
             }
         );
