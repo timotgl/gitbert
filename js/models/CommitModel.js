@@ -14,7 +14,19 @@
     
     Commit.prototype.printSha = function () {
         console.log(this.sha);
-    }
+    };
+    
+    Commit.prototype.willBeFetched = function () {
+        var deferred = $.Deferred();
+        $.get(
+            'http://localhost:3000/gh/' + this.sha,
+            function (data) {
+                console.log(data);
+                deferred.resolve(data);
+            }
+        );
+        return deferred;
+    };
 
     GitBert.CommitModel = Commit;
 }());
