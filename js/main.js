@@ -2,13 +2,13 @@
  * Main app controller
  */
 (function () {
+    // Store commits here by mapping the SHA to model instances.
+    GitBert.commits = {};
+
+    // Preserve order by saving the SHAs in an array, where the first element will be the first commit.
+    GitBert.commitsOrder = [];
+    
     GitBert.init = function (commits) {
-        // Store commits here by mapping the SHA to model instances.
-        GitBert.commits = {};
-
-        // Preserve order by saving the SHAs in an array, where the first element will be the first commit.
-        GitBert.commitsOrder = [];
-
         // Loop over commits and create model instances.
         _.each(commits, function (commitData) {
             GitBert.commits[commitData.sha] = new GitBert.CommitModel(commitData);
@@ -25,7 +25,9 @@
 
         // Initialize content view when all commits have been fetched
         $.when.apply($, allCommitsFetched).then(function () {
-            console.log('All commits have been fetched!');
+            var sha = GitBert.commitsOrder[1],
+                model = GitBert.commits[sha];
+            GitBert.contentView.showInitialState(model.patch);
         });
     };
 }());
