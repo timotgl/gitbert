@@ -69,6 +69,7 @@ function *fetchCommitsByFile (next) {
         baseUrl: baseUrl,
         githubUser: file.user,
         githubRepo: file.repo,
+        githubFile: file.path,
         pageTitle: 'gitbert',
         heading: 'gitbert',
         file: this.request.url.substr(4),
