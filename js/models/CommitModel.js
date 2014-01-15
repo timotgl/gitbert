@@ -24,14 +24,30 @@
     
     Commit.prototype.willBeFetched = function () {
         var deferred = $.Deferred();
+        
+        var fetchSuccess = function (commitDetailsJson) {
+            GitBert.statusView.commitFetched();
+            this.saveDetails(commitDetailsJson);
+            deferred.resolve();
+        }
+        
         $.get(
             this.getFetchUrl(),
-            function (data) {
-                GitBert.statusView.commitFetched();
-                deferred.resolve(data);
-            }
+            _.bind(fetchSuccess, this)
         );
         return deferred;
+    };
+    
+    Commit.prototype.saveDetails = function (commitDetailsJson) {
+        var details = JSON.parse(commitDetailsJson);
+
+        // Find the right file in the list of all files changed by this commit.
+        var file = _.find(details.files, function (committedFile) {
+            return committedFile.filename === GitBert.constants.github.file;
+        });
+
+        // Save the diff
+        this.patch = file.patch;
     };
 
     GitBert.CommitModel = Commit;
