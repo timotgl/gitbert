@@ -5,20 +5,12 @@
  */
 (function () {
     GitBert.contentView = {
-        selector: 'code#fileContent'
+        elem: $('code#fileContent')
     };
     var view = GitBert.contentView;
     
     var lineTemplate = _.template('<tr><td><%= lineNum %></td><td><span class="line <%= lineClass %>"><%= line %></span></td></tr>');
     var containerTemplate = _.template('<table><% _.each(rows, function (row) {%><%= row %><% }) %></table>');
-    
-    view.init = function () {
-        view.elem = $(view.selector);
-        
-        // Start reconstructing the file's content after the first commit.
-        var sha = GitBert.commitsOrder[0];
-        view.renderCommitBySha(sha);
-    };
     
     view.renderCommitBySha = function (sha) {
         console.log('Rendering', sha);
