@@ -48,6 +48,7 @@
 
         // Save the diff
         this.patch = file.patch;
+        this.hunks = GitBert.diffParser.parse(this.patch);
     };
 
     GitBert.CommitModel = Commit;
