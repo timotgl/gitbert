@@ -4,12 +4,60 @@
  * Shows the state of the GitHub file after a given commit, allows to navigate between commits.
  */
 (function () {
-    GitBert.contentView = {};
+    GitBert.contentView = {
+        selector: 'code#fileContent'
+    };
     var view = GitBert.contentView;
     
-    view.showInitialState = function (diff) {
-        console.log(GitBert.diffParser.parse(diff));
-        var noTags = diff.replace('<', '&lt;', 'g').replace('>', '&gt;', 'g');
-        $('code#fileContent').html(noTags);
+    var lineTemplate = _.template('<tr><td><%= lineNum %></td><td><span class="line <%= lineClass %>"><%= line %></span></td></tr>');
+    var containerTemplate = _.template('<table><% _.each(rows, function (row) {%><%= row %><% }) %></table>');
+    
+    view.init = function () {
+        view.elem = $(view.selector);
+        
+        // Start reconstructing the file's content after the first commit.
+        var sha = GitBert.commitsOrder[0];
+        view.renderCommitBySha(sha);
+    };
+    
+    view.renderCommitBySha = function (sha) {
+        console.log('Rendering', sha);
+        var commit = GitBert.commits[sha];
+        view.elem.html(view.renderCommit(commit));
+    };
+    
+    view.renderCommit = function (commitModel) {
+        var lines = [],
+            line,
+            firstChar,
+            lineCssClass,
+            remainingChars;
+
+        _.each(commitModel.hunks, function (hunk) {
+            _.each(hunk.lines, function (currLine, index) {
+                firstChar = currLine[0];
+                remainingChars = GitBert.sourceSanitizer.sanitize(currLine.substr(1));
+
+                if (firstChar === '+') {
+                    lineCssClass = 'lineAdded';
+                } else if (firstChar === '-') {
+                    lineCssClass = 'lineDeleted';
+                } else {
+                    lineCssClass = '';
+                }
+
+                line = lineTemplate({
+                    lineNum: hunk.new.start + index,
+                    lineClass: lineCssClass,
+                    line: remainingChars
+                });
+                lines.push(line);
+            });
+        });
+        return containerTemplate({rows: lines})
+    };
+    
+    view.reconstruct = function () {
+        console.log('All commits fetched, starting reconstruction.');
     };
 }());
