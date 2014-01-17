@@ -28,6 +28,10 @@
         var fetchSuccess = function (commitDetailsJson) {
             GitBert.statusView.commitFetched();
             this.saveDetails(commitDetailsJson);
+            
+            // Just for demo, immediately render the commit when it was fetched.
+            // At this point, the rendering result should instead be stored somewhere.
+            GitBert.contentView.renderCommitBySha(this.sha);
             deferred.resolve();
         }
         
