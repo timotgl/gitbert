@@ -52,6 +52,7 @@ function *fetchCommit (next) {
         repo : this.params.repo,
         sha  : this.params.sha
     });
+    // TODO: Trim irrelevant data from the JSON to reduce the payload size.
     this.body = JSON.stringify(commit);
 };
 
@@ -63,6 +64,7 @@ function *fetchCommitsByFile (next) {
 
     // Fetch array of commit objects from GitHub, the most recent commit comes first.
     commits = yield getCommits(file);
+    // TODO: Trim irrelevant data from the JSON to reduce the payload size.
     commitsJson = JSON.stringify(commits);
 
     this.body = nunjucksEnv.render('index.html', {
