@@ -19,15 +19,21 @@
         GitBert.statusView.initFetchingCommits(GitBert.commitsOrder.length);
 
         // Get list of deferreds for each commit to be fetched
+        var deferred;
         var allCommitsFetched = _.map(GitBert.commits, function (model, index) {
-            return model.willBeFetched();
+            deferred = model.willBeFetched();
+            if (model.sha === GitBert.commitsOrder[0]) {
+                // This is the first (oldest) commit. When it was fetched, we can render its diff.
+                deferred.then(function () {
+                    GitBert.contentView.init();
+                });
+            }
+            return deferred;
         });
 
         // Initialize content view when all commits have been fetched
         $.when.apply($, allCommitsFetched).then(function () {
-            var sha = GitBert.commitsOrder[1],
-                model = GitBert.commits[sha];
-            GitBert.contentView.showInitialState(model.patch);
+            GitBert.contentView.reconstruct();
         });
     };
 }());
