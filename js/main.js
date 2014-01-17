@@ -25,15 +25,16 @@
             if (model.sha === GitBert.commitsOrder[0]) {
                 // This is the first (oldest) commit. When it was fetched, we can render its diff.
                 deferred.then(function () {
-                    GitBert.contentView.init();
+                    GitBert.contentView.renderCommitBySha(model.sha);
                 });
             }
             return deferred;
         });
 
-        // Initialize content view when all commits have been fetched
+        // Initialize content controller and view when all commits have been fetched
         $.when.apply($, allCommitsFetched).then(function () {
             GitBert.contentView.reconstruct();
+            GitBert.contentController.init();
         });
     };
 }());
