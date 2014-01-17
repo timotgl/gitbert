@@ -37,8 +37,9 @@
             hunk;
             
         _.each(lines, function (line, index) {
-            // Check if we encountered the beginning of a hunk or the last line in the diff.
             hunk = parser.getHunkHeader(line);
+
+            // Check if we encountered the beginning of a hunk or the last line in the diff.
             if (hunk || index === lines.length - 1) {
                 if (hunkLines.length >= 1) {
                     // Save buffered lines, they belong to the previous hunk.
