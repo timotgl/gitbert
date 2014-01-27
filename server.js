@@ -1,6 +1,6 @@
 var koa = require('koa'),
     logger = require('koa-logger'),
-    staticFiles = require('koa-static'),
+    serveStaticFiles = require('koa-static'),
     router = require('koa-router'),
     thunkify = require('thunkify'),
     nunjucks = require('nunjucks'),
@@ -92,7 +92,9 @@ nunjucksEnv.addFilter('staticFileUrl', getStaticFileUrl);
 
 // Attach middlewares
 app.use(logger());
-app.use(staticFiles('.'));
+app.use(serveStaticFiles('css'));
+app.use(serveStaticFiles('bower_components'));
+app.use(serveStaticFiles('js'));
 app.use(router(app));
 
 // Define routes

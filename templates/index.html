@@ -1,7 +1,7 @@
 <!DOCTYPE html>
     <head>
         <title>{{ pageTitle }}</title>
-        <link href="{{ 'css/main.css' | staticFileUrl }}" rel="stylesheet" type="text/css" media="all">
+        <link href="{{ 'main.css' | staticFileUrl }}" rel="stylesheet" type="text/css" media="all">
     </head>
     <body>
         <header>
@@ -14,10 +14,10 @@
                 <code id="fileContent"></code>
             </pre>
         </section>
-        <script src="{{ 'bower_components/jquery/jquery.min.js' | staticFileUrl }}"></script>
-        <script src="{{ 'bower_components/lodash/dist/lodash.underscore.min.js' | staticFileUrl}}"></script>
+        <script src="{{ 'jquery/jquery.min.js' | staticFileUrl }}"></script>
+        <script src="{{ 'lodash/dist/lodash.underscore.min.js' | staticFileUrl}}"></script>
         <!--
-        <script src="{{ 'bower_components/react/react.min.js' | staticFileUrl }}"></script>
+        <script src="{{ 'react/react.min.js' | staticFileUrl }}"></script>
         -->
         <script>
             // App namespace with bootstrapped constants.
@@ -32,13 +32,13 @@
                 }
             };
         </script>
-        <script src="{{ 'js/lib/DiffParser.js' | staticFileUrl }}"></script>
-        <script src="{{ 'js/lib/SourceSanitizer.js' | staticFileUrl }}"></script>
-        <script src="{{ 'js/models/CommitModel.js' | staticFileUrl }}"></script>
-        <script src="{{ 'js/views/StatusView.js' | staticFileUrl }}"></script>
-        <script src="{{ 'js/controllers/ContentController.js' | staticFileUrl }}"></script>
-        <script src="{{ 'js/views/ContentView.js' | staticFileUrl }}"></script>
-        <script src="{{ 'js/main.js' | staticFileUrl }}"></script>
+        <script src="{{ 'lib/DiffParser.js' | staticFileUrl }}"></script>
+        <script src="{{ 'lib/SourceSanitizer.js' | staticFileUrl }}"></script>
+        <script src="{{ 'models/CommitModel.js' | staticFileUrl }}"></script>
+        <script src="{{ 'views/StatusView.js' | staticFileUrl }}"></script>
+        <script src="{{ 'controllers/ContentController.js' | staticFileUrl }}"></script>
+        <script src="{{ 'views/ContentView.js' | staticFileUrl }}"></script>
+        <script src="{{ 'main.js' | staticFileUrl }}"></script>
         <script>
             GitBert.init({{ commitsJson }});
         </script>
