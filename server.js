@@ -16,9 +16,8 @@ var koa = require('koa'),
     gh = new GitHubApiClient({version: '3.0.0'}),
     getCommits = thunkify(gh.repos.getCommits),
     getCommit = thunkify(gh.repos.getCommit);
-    ghCredentials = require('./github-credentials.js');
 
-gh.authenticate({type: 'basic', username: ghCredentials.username, password: ghCredentials.pw});
+gh.authenticate({type: 'basic', username: process.env.GITHUB_USERNAME, password: process.env.GITHUB_PW});
 
 /**
  * Extract GitHub user, repo, branch, and file path from url.
