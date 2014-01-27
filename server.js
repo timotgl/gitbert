@@ -36,6 +36,10 @@ function parseGitHubUrl (url) {
     };
 }
 
+function formatGitHubUrl (file) {
+    return 'https://github.com/' + file.user + '/' + file.repo + '/blob/' + file.sha + '/' + file.path;
+}
+
 /**
  * Prefix the relative URL to a static file with the base URL.
  *
@@ -74,7 +78,10 @@ function *fetchCommitsByFile (next) {
         githubFile: file.path,
         pageTitle: 'gitbert',
         heading: 'gitbert',
+        fileText: 'Commit history of',
+        fileUrl: formatGitHubUrl(file),
         file: this.request.url.substr(4),
+        navHint: 'Use left and right arrow keys to flip through commits',
         commitsJson: commitsJson
     });
 }
