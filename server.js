@@ -5,7 +5,7 @@ var koa = require('koa'),
     thunkify = require('thunkify'),
     nunjucks = require('nunjucks'),
     app = koa(),
-    port = 3000,
+    port = process.env.PORT || 3000,
     
     // Base URL used to include static files in the frontend.
     baseUrl = 'http://localhost:' + port + '/',
