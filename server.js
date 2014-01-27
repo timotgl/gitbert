@@ -8,7 +8,7 @@ var koa = require('koa'),
     port = process.env.PORT || 3000,
     
     // Base URL used to include static files in the frontend.
-    baseUrl = 'http://localhost:' + port + '/',
+    baseUrl = process.env.BASE_URL || 'http://localhost:' + port + '/',
 
     COMMITS_BY_FILE_ROUTE_REGEX = /^\/gh\/(.+?)\/(.+?)\/(.+?)\/(.+)/,
     
