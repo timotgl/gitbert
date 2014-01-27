@@ -5,6 +5,7 @@
     "author": "Timo Taglieber <gitbert@timotaglieber.de>",
     "main": "server.js",
     "dependencies": {
+        "bower": "1.2.8",
         "grunt": "0.4.2",
         "grunt-cli": "0.1.11",
         "grunt-contrib-watch": "0.5.3",
@@ -20,5 +21,8 @@
     "engines": {
         "node": "0.11.3",
         "npm": "1.3.x"
+    },
+    "scripts": {
+        "postinstall": "./node_modules/bower/bin/bower install; ./node_modules/.bin/grunt"
     }
 }
