@@ -53,6 +53,11 @@
         }
     };
     
+    
+    controller.reconstruct = function () {
+        console.log('All commits fetched, starting reconstruction.');
+    };
+    
     /**
      * Enable switching between commits with left and right arrow keys.
      */

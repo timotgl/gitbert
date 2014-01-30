@@ -48,8 +48,4 @@
         });
         return containerTemplate({rows: lines})
     };
-    
-    view.reconstruct = function () {
-        console.log('All commits fetched, starting reconstruction.');
-    };
 }());

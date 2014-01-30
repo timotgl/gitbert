@@ -33,7 +33,7 @@
 
         // Initialize content controller and view when all commits have been fetched
         $.when.apply($, allCommitsFetched).then(function () {
-            GitBert.contentView.reconstruct();
+            GitBert.contentController.reconstruct();
             GitBert.contentController.init();
         });
     };
