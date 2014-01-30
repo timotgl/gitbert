@@ -11,13 +11,22 @@
     
     var lineTemplate = _.template('<tr><td><%= lineNum %></td><td><span class="line <%= lineClass %>"><%= line %></span></td></tr>');
     var containerTemplate = _.template('<table><% _.each(rows, function (row) {%><%= row %><% }) %></table>');
+    var logTemplate = _.template('Rendering commit <%= index %>/<%= total %> with sha <%= sha %> "<%= msg %>"');
     
     view.renderCommitBySha = function (sha) {
-        console.log('Rendering', sha);
         var commit = GitBert.commits[sha];
+        console.log(logTemplate({
+            index: commit.index + 1,
+            total: GitBert.commitsOrder.length,
+            sha: sha,
+            msg: commit.message
+        }));
         view.elem.html(view.renderCommit(commit));
     };
     
+    /**
+     * Render hunk after hunk and indicate additions and deletions.
+     */
     view.renderCommit = function (commitModel) {
         var lines = [],
             line,
