@@ -7,13 +7,13 @@
 
     // Preserve order by saving the SHAs in an array, where the first element will be the first commit.
     GitBert.commitsOrder = [];
-    
+
     GitBert.init = function (commits) {
         // Loop over commits and create model instances.
         _.each(commits, function (commitData, index) {
             // Save the index so the model will know its own position in the history.
             // The order is reversed later so we need to count down not up.
-            commitData.index = commits.length - 1 - index; 
+            commitData.index = commits.length - 1 - index;
 
             GitBert.commits[commitData.sha] = new GitBert.CommitModel(commitData);
             GitBert.commitsOrder.push(commitData.sha);

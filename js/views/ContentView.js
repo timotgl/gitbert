@@ -1,6 +1,6 @@
 /**
  * File content view singleton.
- * 
+ *
  * Shows the state of the GitHub file after a given commit, allows to navigate between commits.
  */
 (function () {
@@ -8,11 +8,11 @@
         elem: $('code#fileContent')
     };
     var view = GitBert.contentView;
-    
+
     var lineTemplate = _.template('<tr><td><%= lineNum %></td><td><span class="line <%= lineClass %>"><%= line %></span></td></tr>');
     var containerTemplate = _.template('<table><% _.each(rows, function (row) {%><%= row %><% }) %></table>');
     var logTemplate = _.template('Rendering commit <%= index %>/<%= total %> with sha <%= sha %> "<%= msg %>"');
-    
+
     view.renderCommitBySha = function (sha) {
         var commit = GitBert.commits[sha];
         console.log(logTemplate({
@@ -23,7 +23,7 @@
         }));
         view.elem.html(view.renderCommit(commit));
     };
-    
+
     /**
      * Render hunk after hunk and indicate additions and deletions.
      */

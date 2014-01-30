@@ -6,12 +6,12 @@ var koa = require('koa'),
     nunjucks = require('nunjucks'),
     app = koa(),
     port = process.env.PORT || 3000,
-    
+
     // Base URL used to include static files in the frontend.
     baseUrl = process.env.BASE_URL || 'http://localhost:' + port + '/',
 
     COMMITS_BY_FILE_ROUTE_REGEX = /^\/gh\/(.+?)\/(.+?)\/(.+?)\/(.+)/,
-    
+
     GitHubApiClient = require('github'),
     gh = new GitHubApiClient({version: '3.0.0'}),
     getCommits = thunkify(gh.repos.getCommits),

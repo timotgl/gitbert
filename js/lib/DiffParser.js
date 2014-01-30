@@ -1,6 +1,6 @@
 /**
  * Diff parser singleton.
- * 
+ *
  * Returns an object representing the structure of a unified diff for a committed file.
  */
 (function () {
@@ -10,7 +10,7 @@
     var re = {
         hunkHeader: /@@ -(\d+)(,\d+)? \+(\d+)(,\d+) @@/,
     };
-    
+
     parser.getHunkHeader = function (line) {
         var matches = line.match(re.hunkHeader);
         if (matches === null) {
@@ -35,7 +35,7 @@
             prevHunk,
             currHunk,
             hunk;
-            
+
         _.each(lines, function (line, index) {
             hunk = parser.getHunkHeader(line);
 

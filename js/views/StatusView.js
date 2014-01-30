@@ -1,6 +1,6 @@
 /**
  * App status view singleton.
- * 
+ *
  * Displays loading progress and notifications.
  */
 (function () {
@@ -8,13 +8,13 @@
         fetchingCommitsTemplate: _.template('Fetching commit <%= curr %>/<%= total %>')
     };
     var view = GitBert.statusView;
-    
+
     view.initFetchingCommits = function (numTotal) {
         view.fetchCommitsTotal = numTotal;
         view.fetchCommitsCurrent = 0;
         view.showFetchingCommits();
     };
-    
+
     view.commitFetched = function () {
         view.fetchCommitsCurrent++;
         view.showFetchingCommits();
