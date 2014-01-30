@@ -10,6 +10,7 @@
         this.committer = data.commit.committer;
         this.message = data.commit.message;
         this.sha = data.sha;
+        this.index = data.index; // So commit knows its own position in the chronological order
         this.fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
     }
     
