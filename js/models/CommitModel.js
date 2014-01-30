@@ -11,11 +11,15 @@
         this.message = data.commit.message;
         this.sha = data.sha;
         this.index = data.index; // So commit knows its own position in the chronological order
-        this.fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
+
+        // The full content of the file after this commit was applied will be reconstructed here as an array of lines.
+        this.content = null;
     }
+    
+    fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
 
     Commit.prototype.getFetchUrl = function () {
-        return this.fetchUrlTemplate({
+        return fetchUrlTemplate({
             baseUrl: GitBert.constants.baseUrl,
             user: GitBert.constants.github.user,
             repo: GitBert.constants.github.repo,
@@ -56,6 +60,53 @@
 
         // Extract individual hunks from the diff and save them
         this.hunks = GitBert.diffParser.parse(this.patch);
+    };
+
+    Commit.prototype.reconstructContent = function () {
+        var prevSha,
+            prevCommit;
+
+        if (this.index === 0) {
+            this.content = [];
+        } else {
+            prevSha = GitBert.commitsOrder[this.index - 1];
+            prevCommit = GitBert.commits[prevSha];
+
+            // Clone all lines from the previous state of the file.
+            this.content = prevCommit.content.slice();
+        }
+        
+        // Apply all hunks of this commit to the previous content of the file.
+        _.each(this.hunks, function (hunk) {
+            this.applyHunk(hunk);
+        }, this);
+    };
+    
+    Commit.prototype.applyHunk = function (hunk) {
+        // The start line in the old file can be 0, which means the file didn't exist until this commit added it to the
+        // repo.
+        var lineOffset = (hunk.old.start === 0) ? 0 : hunk.old.start - 1,
+            position,
+            firstChar,
+            remainingChars;
+
+        _.each(hunk.lines, function (line, index) {
+            position = lineOffset + index;
+            firstChar = line[0];
+            remainingChars = line.substr(1);
+
+            // TODO: Figure out how to buffer lines that change.
+            // Easy case: n deleted lines followed by n added lines (nothing was moved around).
+            // When lines were moved the diff can look different.
+            if (firstChar === '-') {
+                
+            } else if (firstChar === '+') {
+                // TODO: this only works if the commit only added lines to a previously empty file!
+                this.content.push(remainingChars);
+            } else {
+                
+            }
+        }, this);
     };
 
     GitBert.CommitModel = Commit;

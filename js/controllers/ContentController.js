@@ -53,9 +53,16 @@
         }
     };
 
-
+    /**
+     * Reconstruct the full content of the file after each commit.
+     */
     controller.reconstruct = function () {
         console.log('All commits fetched, starting reconstruction.');
+        var commit;
+        _.each(GitBert.commitsOrder, function (sha) {
+            commit = GitBert.commits[sha];
+            commit.reconstructContent();
+        });
     };
 
     /**
