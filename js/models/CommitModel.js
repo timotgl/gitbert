@@ -53,6 +53,8 @@
 
         // Save the diff
         this.patch = file.patch;
+
+        // Extract individual hunks from the diff and save them
         this.hunks = GitBert.diffParser.parse(this.patch);
     };
 
