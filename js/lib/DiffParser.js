@@ -8,22 +8,33 @@
     var parser = GitBert.diffParser;
 
     var re = {
-        hunkHeader: /@@ -(\d+)(,\d+)? \+(\d+)(,\d+) @@/,
+        // To identify the header line of a hunk in the diff
+        // Source: http://www.artima.com/weblogs/viewpost.jsp?thread=164293
+        hunkHeader: /@@ -(\d+)(,\d+)? \+(\d+)(,\d+)? @@/,
+
+        // To extract the values from the old and new parts better
+        // The optional comma and second decimal results in messy logic when checking the matched groups.
+        hunkHeaderDetail: /(-[^ ]+) (\+[^ ]+)/
     };
 
     parser.getHunkHeader = function (line) {
-        var matches = line.match(re.hunkHeader);
+        var matches = line.match(re.hunkHeader),
+            oldChunk,
+            newChunk;
         if (matches === null) {
             return null;
         }
+        matches = line.match(re.hunkHeaderDetail);
+        oldChunk = matches[1].replace('-', '').split(',');
+        newChunk = matches[2].replace('+', '').split(',');
         return {
             old: {
-                start: parseInt(matches[1]),
-                size: parseInt(matches[2].replace(',', ''))
+                start: parseInt(oldChunk[0]),
+                size: (oldChunk.length === 2) ? parseInt(oldChunk[1]) : null
             },
             new: {
-                start: parseInt(matches[3]),
-                size: parseInt(matches[4].replace(',', ''))
+                start: parseInt(newChunk[0]),
+                size: (newChunk.length === 2) ? parseInt(newChunk[1]) : null
             }
         };
     };
