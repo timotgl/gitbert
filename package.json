@@ -13,7 +13,7 @@
         "koa": "0.1.2",
         "koa-logger": "1.1.0",
         "koa-static": "1.4.0",
-        "koa-router": "2.2.0",
+        "koa-router": "2.4.3",
         "github": "0.1.12",
         "thunkify": "0.0.1",
         "nunjucks": "1.0.1"
