@@ -68,6 +68,7 @@
             prevCommit;
 
         if (this.index === 0) {
+            // First commit, start out with empty content.
             this.content = [];
         } else {
             prevSha = GitBert.commitsOrder[this.index - 1];
@@ -84,36 +85,41 @@
     };
     
     Commit.prototype.applyHunk = function (hunk) {
-        // The start line in the old file can be 0, which means the file didn't exist until this commit added it to the
+        // Index of the line in the old file to which the changes in the hunk are related.
+        // Can be 0, which means the file didn't exist until this commit added it to the
         // repo.
-        var lineOffset = (hunk.old.start === 0) ? 0 : hunk.old.start - 1,
-            position,
+        var position = (hunk.old.start === 0) ? 0 : hunk.old.start - 1,
             firstChar,
             remainingChars,
-            deletions = [], // Contains indices of lines to be deleted.
-            lastDeletion = null,
+            buffer = [], // Keep track of line indices where a deletion is followed by an addition (=replacement).
+            deletions = {}, // Contains indices of lines to be deleted.
             additions = {}; // Contains indices of lines which mark the insertion of an array of added lines.
 
-        _.each(hunk.lines, function (line, index) {
-            position = lineOffset + index;
+        _.each(hunk.lines, function (line) {
             firstChar = line[0];
             remainingChars = line.substr(1);
 
-            // TODO: Figure out how to buffer lines that change.
-            // Easy case: n deleted lines followed by n added lines (nothing was moved around).
-            // When lines were moved the diff can look different.
             if (firstChar === '-') {
-                deletions.push(position); // Remember that this line will be removed
-                lastDeletion = position;
-                lineOffset--; // The next addition needs to start at the current line
+                buffer.push(position);
+                deletions[position] = true;
+                position++;
             } else if (firstChar === '+') {
-                additions[position] = remainingChars;
-            } else if (line === missingNewLineToken) {
-                lineOffset--;
+                if (_.isEmpty(buffer)) {
+                    additions[position] = remainingChars;
+                    position++;
+                } else {
+                    additions[buffer.shift()] = remainingChars;
+                }
+            } else if (line === _missingNewLineToken) {
+
+            } else {
+                // Line common in old and new file
+                buffer = []; // Clear buffer, since any following additions can't be related to previous deletions.
+                position++;
             }
         }, this);
-        console.log(deletions);
-        console.log(additions);
+        console.log('deletions:', deletions);
+        console.log('additions:', additions);
     };
 
     GitBert.CommitModel = Commit;
