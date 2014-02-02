@@ -15,9 +15,18 @@
         // The full content of the file after this commit was applied will be reconstructed here as an array of lines.
         this.content = null;
     }
+
+    var _fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
+    var _missingNewLineToken = '\\ No newline at end of file';
+
+    // Helper function used to sort line numbers.
+    var _compareNum = function (a, b) {
+        return a - b;
+    };
     
-    _fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
-    _missingNewLineToken = '\\ No newline at end of file';
+    var _arrayToInt = function (intStr) {
+        return parseInt(intStr);
+    };
 
     Commit.prototype.getFetchUrl = function () {
         return _fetchUrlTemplate({
@@ -79,12 +88,19 @@
         }
         
         // Apply all hunks of this commit to the previous content of the file.
+        var changes;
         _.each(this.hunks, function (hunk) {
-            this.applyHunk(hunk);
+            changes = this.getChangesFromHunk(hunk);
+            this.applyChangesFromHunk(changes);
         }, this);
+        
+        // Flatten this.content to be an array of lines again.
+        // At this point it can contain null for deleted lines and sub-arrays of newly added lines.
+        // This is due to maintaining the line numbers of the original file which are referenced in each hunk.
+        this.flattenContent();
     };
     
-    Commit.prototype.applyHunk = function (hunk) {
+    Commit.prototype.getChangesFromHunk = function (hunk) {
         // Index of the line in the old file to which the changes in the hunk are related.
         // Can be 0, which means the file didn't exist until this commit added it to the
         // repo.
@@ -118,8 +134,67 @@
                 position++;
             }
         }, this);
-        console.log('deletions:', deletions);
-        console.log('additions:', additions);
+        return {
+            additions: additions,
+            deletions: deletions
+        };
+    };
+
+    /**
+     * Go line by line through this.content and apply the changes from one hunk.
+     * Lines we have to delete are set to null.
+     * Lines before which we have to insert other lines are turned into arrays of lines,
+     * where the original line is put at the end.
+     */
+    Commit.prototype.applyChangesFromHunk = function (changes) {
+        var adds = changes.additions,
+            dels = changes.deletions,
+            // Get the line numbers as sorted arrays of integers.
+            addLines = _.map(_.keys(adds), _arrayToInt).sort(_compareNum),
+            delLines = _.map(_.keys(dels), _arrayToInt).sort(_compareNum);
+        
+        if (this.content.length === 0) {
+            // The old file was empty, so the changes can only be additions.
+            _.each(addLines, function (lineNum) {
+                if (this.content.length === lineNum) {
+                    // line has to be appended at the end of this.content
+                    this.content.push(adds[lineNum]);
+                }
+            }, this);
+            return;
+        }
+        
+        var currLine,
+            lineToInsert,
+            oldLine;
+        for (currLine = 0; currLine < this.content.length; currLine++) {
+            if (dels[currLine]) {
+                this.content[currLine] = null;
+            }
+            lineToInsert = adds[currLine];
+            if (lineToInsert) {
+                oldLine = this.content[currLine];
+                if (_.isString(oldLine)) {
+                    this.content[currLine] = [lineToInsert, oldLine];
+                } else if (_.isArray(oldLine)) {
+                    oldLine.unshift(lineToInsert);
+                } else {
+                    this.content[currLine] = [lineToInsert];
+                }
+            }
+        }
+        
+        // Append all remaining lines
+        lineToInsert = adds[currLine];
+        while (lineToInsert) {
+            this.content.push(lineToInsert);
+            currLine++;
+            lineToInsert = adds[currLine];
+        }
+    };
+    
+    Commit.prototype.flattenContent = function () {
+        this.content = _.flatten(_.without(this.content, null));
     };
 
     GitBert.CommitModel = Commit;
