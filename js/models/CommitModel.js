@@ -16,11 +16,11 @@
         this.content = null;
     }
     
-    fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
-    missingNewLineToken = '\\ No newline at end of file';
+    _fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
+    _missingNewLineToken = '\\ No newline at end of file';
 
     Commit.prototype.getFetchUrl = function () {
-        return fetchUrlTemplate({
+        return _fetchUrlTemplate({
             baseUrl: GitBert.constants.baseUrl,
             user: GitBert.constants.github.user,
             repo: GitBert.constants.github.repo,
