@@ -48,6 +48,7 @@
                 }
 
                 line = lineTemplate({
+                    // TODO: this line number is wrong, it can't just increment. Needs to consider additions and deletions.
                     lineNum: hunk.new.start + index,
                     lineClass: lineCssClass,
                     line: remainingChars
