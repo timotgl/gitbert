@@ -69,6 +69,9 @@ function *fetchCommit (next) {
  */
 function *fetchCommitsByFile (next) {
     var file = parseGitHubUrl(this.request.url);
+    
+    // TODO: proper pagination handling
+    file.per_page = 100;
 
     // Fetch array of commit objects from GitHub, the most recent commit comes first.
     commits = yield getCommits(file);
