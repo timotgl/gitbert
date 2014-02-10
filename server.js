@@ -17,7 +17,12 @@ var koa = require('koa'),
     getCommits = thunkify(gh.repos.getCommits),
     getCommit = thunkify(gh.repos.getCommit);
 
-gh.authenticate({type: 'basic', username: process.env.GITHUB_USERNAME, password: process.env.GITHUB_PW});
+// Take credentials from env vars and authenticate with GitHub API.
+gh.authenticate({
+    type: 'basic',
+    username: process.env.GITHUB_USERNAME,
+    password: process.env.GITHUB_PW
+});
 
 /**
  * Extract GitHub user, repo, branch, and file path from url.
