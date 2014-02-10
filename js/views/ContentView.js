@@ -19,9 +19,20 @@
             index: commit.index + 1,
             total: GitBert.commitsOrder.length,
             sha: sha,
-            msg: commit.message
+            msg: GitBert.utils.truncateString(commit.message, 40)
         }));
         view.elem.html(view.renderCommit(commit));
+    };
+    
+    view.renderContentBySha = function (sha) {
+        var commit = GitBert.commits[sha];
+        console.log(_logTemplate({
+            index: commit.index + 1,
+            total: GitBert.commitsOrder.length,
+            sha: sha,
+            msg: GitBert.utils.truncateString(commit.message, 40)
+        }));
+        view.elem.html(view.renderContent(commit));
     };
 
     /**
@@ -55,6 +66,26 @@
                 });
                 lines.push(line);
             });
+        });
+        return _containerTemplate({rows: lines})
+    };
+
+    /**
+     * Render the file content after the commit was applied.
+     */
+    view.renderContent = function (commitModel) {
+        var lines = [],
+            sanitizedLine,
+            renderedLine;
+
+        _.each(commitModel.content, function (line, index) {
+            sanitizedLine = GitBert.sourceSanitizer.sanitize(line);
+            renderedLine = _lineTemplate({
+                lineNum: index + 1,
+                lineClass: '',
+                line: sanitizedLine
+            });
+            lines.push(renderedLine);
         });
         return _containerTemplate({rows: lines})
     };
