@@ -10,7 +10,9 @@
         this.committer = data.commit.committer;
         this.message = data.commit.message;
         this.sha = data.sha;
-        this.index = data.index; // So commit knows its own position in the chronological order
+        
+        // Position of this commit in the chronological order of all commits. Starts with 0 (the very first commit).
+        this.index = data.index;
 
         // The full content of the file after this commit was applied will be reconstructed here as an array of lines.
         this.content = null;
