@@ -36,7 +36,7 @@
 
     var show = function () {
         var sha = GitBert.commitsOrder[currentIndex];
-        GitBert.contentView.renderCommitBySha(sha);
+        GitBert.contentView.renderBySha(sha);
     };
 
     var checkKey = function (keyDownEvent) {

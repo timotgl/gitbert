@@ -55,7 +55,7 @@
 
             // Just for demo, immediately render the commit when it was fetched.
             // At this point, the rendering result should instead be stored somewhere.
-            GitBert.contentView.renderCommitBySha(this.sha);
+            GitBert.contentView.renderBySha(this.sha);
             deferred.resolve();
         }
 
