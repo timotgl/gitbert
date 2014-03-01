@@ -81,6 +81,19 @@
         this.hunks = GitBert.diffParser.parse(this.patch);
     };
 
+    /**
+     * Collect all line numbers (not indices) where a hunk started in the file's old content.
+     * This aides the rendering of the file content with a full diff (all old unchanged lines plus all hunks).
+     * Returns an object that maps line numbers to array indicies of hunks located in CommitModel.hunks.
+     */
+    Commit.prototype.getHunkStartLines = function () {
+        var startLines = {};
+        _.each(this.hunks, function (hunk, hunkIndex) {
+            startLines[hunk.old.start] = hunkIndex;
+        });
+        return startLines;
+    };
+
     Commit.prototype.reconstructContent = function () {
         var prevSha,
             prevCommit;
