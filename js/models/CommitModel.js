@@ -30,6 +30,13 @@
         return parseInt(intStr);
     };
 
+    /**
+     * Determine if this commit was the very first in the chronological order.
+     */
+    Commit.prototype.isFirst = function () {
+        return this.index === 0;
+    };
+
     Commit.prototype.getFetchUrl = function () {
         return _fetchUrlTemplate({
             baseUrl: GitBert.constants.baseUrl,
