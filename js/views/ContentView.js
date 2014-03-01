@@ -34,39 +34,39 @@
      * Render hunk after hunk and indicate additions and deletions.
      */
     view.renderHunks = function (commitModel) {
-        var lines = [],
-            line,
-            firstChar,
-            lineCssClass,
-            remainingChars;
-
+        var lines = [];
         _.each(commitModel.hunks, function (hunk) {
-            _.each(hunk.lines, function (currLine, index) {
-                firstChar = currLine[0];
-                remainingChars = GitBert.sourceSanitizer.sanitize(currLine.substr(1));
-
-                if (firstChar === '+') {
-                    lineCssClass = 'lineAdded';
-                } else if (firstChar === '-') {
-                    lineCssClass = 'lineDeleted';
-                } else {
-                    lineCssClass = '';
-                }
-
-                line = _lineTemplate({
-                    // TODO: this line number is wrong, it can't just increment. Needs to consider additions and deletions.
-                    lineNum: hunk.new.start + index,
-                    lineClass: lineCssClass,
-                    line: remainingChars
-                });
-                lines.push(line);
-            });
+            view.renderHunk(hunk, lines);
         });
         return _containerTemplate({rows: lines});
     };
 
     view.renderHunk = function (hunk, lines) {
+        var line,
+            firstChar,
+            lineCssClass,
+            remainingChars;
         
+        _.each(hunk.lines, function (currLine, index) {
+            firstChar = currLine[0];
+            remainingChars = GitBert.sourceSanitizer.sanitize(currLine.substr(1));
+
+            if (firstChar === '+') {
+                lineCssClass = 'lineAdded';
+            } else if (firstChar === '-') {
+                lineCssClass = 'lineDeleted';
+            } else {
+                lineCssClass = '';
+            }
+
+            line = _lineTemplate({
+                // TODO: this line number is wrong, it can't just increment. Needs to consider additions and deletions.
+                lineNum: hunk.new.start + index,
+                lineClass: lineCssClass,
+                line: remainingChars
+            });
+            lines.push(line);
+        });
     };
 
     /**
