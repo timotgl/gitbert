@@ -111,7 +111,10 @@
         // {144: 0, 179: 1}
         var prevSha = GitBert.commitsOrder[commitModel.index - 1];
         var prevCommit = GitBert.commits[prevSha];
-        
+
+        // 0 means we don't skip lines (no rendering of hunk lines in progress during the loop below).
+        var continueAtLine = 0;
+
         _.each(prevCommit.content, function (line, index) {
             lineNum = index + 1;
             if (hunkStartLines.hasOwnProperty(lineNum)) {
@@ -120,9 +123,14 @@
                 hunkIndex = hunkStartLines[lineNum];
                 hunk = commitModel.hunks[hunkIndex];
                 view.renderHunk(hunk, lines);
-                
-                // TODO: next iteration has to skip each line that has been appended to lines already.
+
+                // Remember at which line we have to continue rendering in this loop.
+                // The lines rendered by view.renderHunk() have to be skipped.
+                continueAtLine = hunk.old.start + hunk.old.size;
+            } else if (continueAtLine > 0 && lineNum < continueAtLine) {
+                return;
             } else {
+                continueAtLine = 0; // Reset the line number until which we have to skip rendering lines.
                 sanitizedLine = GitBert.sourceSanitizer.sanitize(line);
                 renderedLine = _lineTemplate({
                     lineNum: lineNum,
