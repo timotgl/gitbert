@@ -13,32 +13,27 @@
     var _containerTemplate = _.template('<table><% _.each(rows, function (row) {%><%= row %><% }) %></table>');
     var _logTemplate = _.template('Rendering commit <%= index %>/<%= total %> with sha <%= sha %> "<%= msg %>"');
 
-    view.renderCommitBySha = function (sha) {
+    /**
+     * Retrieve the commit with the specified sha and render it.
+     */
+    view.renderBySha = function (sha) {
         var commit = GitBert.commits[sha];
+        var html = view.renderFullDiff(commit);
+
+        view.elem.html(html);
+
         console.log(_logTemplate({
             index: commit.index + 1,
             total: GitBert.commitsOrder.length,
             sha: sha,
             msg: GitBert.utils.truncateString(commit.message, 40)
         }));
-        view.elem.html(view.renderCommit(commit));
-    };
-    
-    view.renderContentBySha = function (sha) {
-        var commit = GitBert.commits[sha];
-        console.log(_logTemplate({
-            index: commit.index + 1,
-            total: GitBert.commitsOrder.length,
-            sha: sha,
-            msg: GitBert.utils.truncateString(commit.message, 40)
-        }));
-        view.elem.html(view.renderContent(commit));
     };
 
     /**
      * Render hunk after hunk and indicate additions and deletions.
      */
-    view.renderCommit = function (commitModel) {
+    view.renderHunks = function (commitModel) {
         var lines = [],
             line,
             firstChar,
@@ -67,7 +62,11 @@
                 lines.push(line);
             });
         });
-        return _containerTemplate({rows: lines})
+        return _containerTemplate({rows: lines});
+    };
+
+    view.renderHunk = function (hunk, lines) {
+        
     };
 
     /**
@@ -89,4 +88,51 @@
         });
         return _containerTemplate({rows: lines})
     };
+
+    /**
+     * Render the file content before this commit was applied, and include the diffs of each hunk.
+     */
+    view.renderFullDiff = function (commitModel) {
+        if (commitModel.isFirst()) {
+            // The first commit has no predecessor, and therefore no previous file content.
+            // Fall back to rendering the hunks.
+            return this.renderHunks(commitModel);
+        }
+
+        var lines = [],
+            lineNum,
+            hunkIndex,
+            hunk,
+            sanitizedLine,
+            renderedLine;
+        
+        // TODO: hunk.old: {start: 144, size: 7} line 144 in the old file is the first line of the hunk's lines!
+        var hunkStartLines = commitModel.getHunkStartLines();
+        // {144: 0, 179: 1}
+        var prevSha = GitBert.commitsOrder[commitModel.index - 1];
+        var prevCommit = GitBert.commits[prevSha];
+        
+        _.each(prevCommit.content, function (line, index) {
+            lineNum = index + 1;
+            if (hunkStartLines.hasOwnProperty(lineNum)) {
+                // The current line is the start line of a hunk.
+                // Append all rendered lines from that hunk to the current array of lines.
+                hunkIndex = hunkStartLines[lineNum];
+                hunk = commitModel.hunks[hunkIndex];
+                view.renderHunk(hunk, lines);
+                
+                // TODO: next iteration has to skip each line that has been appended to lines already.
+            } else {
+                sanitizedLine = GitBert.sourceSanitizer.sanitize(line);
+                renderedLine = _lineTemplate({
+                    lineNum: lineNum,
+                    lineClass: '',
+                    line: sanitizedLine
+                });
+                lines.push(renderedLine);
+            }
+        });
+
+        return _containerTemplate({rows: lines})
+    }
 }());
