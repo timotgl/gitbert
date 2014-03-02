@@ -101,17 +101,15 @@
 
         var lines = [],
             lineNum,
-            hunkIndex,
-            hunk,
-            sanitizedLine,
-            renderedLine;
-        
-        // TODO: hunk.old: {start: 144, size: 7} line 144 in the old file is the first line of the hunk's lines!
-        var hunkStartLines = commitModel.getHunkStartLines();
-        // {144: 0, 179: 1}
+            hunk;
+
+        // Grab the commit before the one passed to this method.
         var prevSha = GitBert.commitsOrder[commitModel.index - 1];
         var prevCommit = GitBert.commits[prevSha];
 
+        // To check at which line we have to render which hunk
+        var hunkStartLines = commitModel.getHunkStartLines();
+        
         // 0 means we don't skip lines (no rendering of hunk lines in progress during the loop below).
         var continueAtLine = 0;
 
@@ -120,24 +118,23 @@
             if (hunkStartLines.hasOwnProperty(lineNum)) {
                 // The current line is the start line of a hunk.
                 // Append all rendered lines from that hunk to the current array of lines.
-                hunkIndex = hunkStartLines[lineNum];
-                hunk = commitModel.hunks[hunkIndex];
+                hunk = commitModel.hunks[hunkStartLines[lineNum]];
                 view.renderHunk(hunk, lines);
 
                 // Remember at which line we have to continue rendering in this loop.
                 // The lines rendered by view.renderHunk() have to be skipped.
                 continueAtLine = hunk.old.start + hunk.old.size;
             } else if (continueAtLine > 0 && lineNum < continueAtLine) {
-                return;
+                return; // Current line is part of a hunk, skip it.
             } else {
                 continueAtLine = 0; // Reset the line number until which we have to skip rendering lines.
-                sanitizedLine = GitBert.sourceSanitizer.sanitize(line);
-                renderedLine = _lineTemplate({
-                    lineNum: lineNum,
-                    lineClass: '',
-                    line: sanitizedLine
-                });
-                lines.push(renderedLine);
+                lines.push(
+                    _lineTemplate({
+                        lineNum: lineNum,
+                        lineClass: '',
+                        line: GitBert.sourceSanitizer.sanitize(line)
+                    })
+                );
             }
         });
 
