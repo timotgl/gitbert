@@ -104,14 +104,13 @@
             hunk;
 
         // Grab the commit before the one passed to this method.
-        var prevSha = GitBert.commitsOrder[commitModel.index - 1];
-        var prevCommit = GitBert.commits[prevSha];
+        var prevSha = GitBert.commitsOrder[commitModel.index - 1],
+            prevCommit = GitBert.commits[prevSha];
 
-        // To check at which line we have to render which hunk
-        var hunkStartLines = commitModel.getHunkStartLines();
-        
-        // 0 means we don't skip lines (no rendering of hunk lines in progress during the loop below).
-        var continueAtLine = 0;
+        // To check at which line we have to render which hunk,
+        // and when to continue render the old file content line by line.
+        var hunkStartLines = commitModel.getHunkStartLines(),
+            continueAtLine = 0;
 
         _.each(prevCommit.content, function (line, index) {
             lineNum = index + 1;
@@ -124,10 +123,9 @@
                 // Remember at which line we have to continue rendering in this loop.
                 // The lines rendered by view.renderHunk() have to be skipped.
                 continueAtLine = hunk.old.start + hunk.old.size;
-            } else if (continueAtLine > 0 && lineNum < continueAtLine) {
+            } else if (lineNum < continueAtLine) {
                 return; // Current line is part of a hunk, skip it.
             } else {
-                continueAtLine = 0; // Reset the line number until which we have to skip rendering lines.
                 lines.push(
                     _lineTemplate({
                         lineNum: lineNum,
