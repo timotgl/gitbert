@@ -43,11 +43,18 @@
 
     view.renderHunk = function (hunk, lines) {
         var line,
+            lineNum,
             firstChar,
             lineCssClass,
             remainingChars;
         
+        // Maintain correct line numbers of the old file content.
+        // Deletion lines in the hunk are not supposed to increment the line number.
+        var deletions = 0;
+
         _.each(hunk.lines, function (currLine, index) {
+            lineNum = hunk.old.start + index - deletions;
+
             firstChar = currLine[0];
             remainingChars = GitBert.sourceSanitizer.sanitize(currLine.substr(1));
 
@@ -55,13 +62,14 @@
                 lineCssClass = 'lineAdded';
             } else if (firstChar === '-') {
                 lineCssClass = 'lineDeleted';
+                deletions++;
+                lineNum = '';
             } else {
                 lineCssClass = '';
             }
 
             line = _lineTemplate({
-                // TODO: this line number is wrong, it can't just increment. Needs to consider additions and deletions.
-                lineNum: hunk.new.start + index,
+                lineNum: lineNum,
                 lineClass: lineCssClass,
                 line: remainingChars
             });
