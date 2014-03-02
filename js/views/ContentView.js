@@ -34,26 +34,31 @@
      * Render hunk after hunk and indicate additions and deletions.
      */
     view.renderHunks = function (commitModel) {
-        var lines = [];
+        var basedOnEmpty = commitModel.isFirst(),
+            lines = [];
         _.each(commitModel.hunks, function (hunk) {
-            view.renderHunk(hunk, lines);
+            view.renderHunk(hunk, lines, basedOnEmpty);
         });
         return _containerTemplate({rows: lines});
     };
 
-    view.renderHunk = function (hunk, lines) {
+    view.renderHunk = function (hunk, lines, basedOnEmpty) {
         var line,
             lineNum,
             firstChar,
             lineCssClass,
             remainingChars;
-        
+
+        // If the diff is based on a previously empty file, the start line number of the hunk is 0.
+        // We have to correct this so the first line that was added is shown as line number 1.
+        var startLineNum = hunk.old.start + ((basedOnEmpty === true) ? 1 : 0);
+
         // Maintain correct line numbers of the old file content.
         // Deletion lines in the hunk are not supposed to increment the line number.
         var deletions = 0;
 
         _.each(hunk.lines, function (currLine, index) {
-            lineNum = hunk.old.start + index - deletions;
+            lineNum = startLineNum + index - deletions;
 
             firstChar = currLine[0];
             remainingChars = GitBert.sourceSanitizer.sanitize(currLine.substr(1));
