@@ -10,7 +10,7 @@
         this.committer = data.commit.committer;
         this.message = data.commit.message;
         this.sha = data.sha;
-        
+
         // Position of this commit in the chronological order of all commits. Starts with 0 (the very first commit).
         this.index = data.index;
 
@@ -25,7 +25,7 @@
     var _compareNum = function (a, b) {
         return a - b;
     };
-    
+
     var _arrayToInt = function (intStr) {
         return parseInt(intStr);
     };
@@ -108,20 +108,20 @@
             // Clone all lines from the previous state of the file.
             this.content = prevCommit.content.slice();
         }
-        
+
         // Apply all hunks of this commit to the previous content of the file.
         var changes;
         _.each(this.hunks, function (hunk) {
             changes = this.getChangesFromHunk(hunk);
             this.applyChangesFromHunk(changes);
         }, this);
-        
+
         // Flatten this.content to be an array of lines again.
         // At this point it can contain null for deleted lines and sub-arrays of newly added lines.
         // This is due to maintaining the line numbers of the original file which are referenced in each hunk.
         this.flattenContent();
     };
-    
+
     Commit.prototype.getChangesFromHunk = function (hunk) {
         // Index of the line in the old file to which the changes in the hunk are related.
         // Can be 0, which means the file didn't exist until this commit added it to the
@@ -174,7 +174,7 @@
             // Get the line numbers as sorted arrays of integers.
             addLines = _.map(_.keys(adds), _arrayToInt).sort(_compareNum),
             delLines = _.map(_.keys(dels), _arrayToInt).sort(_compareNum);
-        
+
         if (this.content.length === 0) {
             // The old file was empty, so the changes can only be additions.
             _.each(addLines, function (lineNum) {
@@ -185,7 +185,7 @@
             }, this);
             return;
         }
-        
+
         var currLine,
             lineToInsert,
             oldLine;
@@ -205,7 +205,7 @@
                 }
             }
         }
-        
+
         // Append all remaining lines
         lineToInsert = adds[currLine];
         while (lineToInsert) {
@@ -214,7 +214,7 @@
             lineToInsert = adds[currLine];
         }
     };
-    
+
     Commit.prototype.flattenContent = function () {
         this.content = _.flatten(_.without(this.content, null));
     };
