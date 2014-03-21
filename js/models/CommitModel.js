@@ -75,6 +75,9 @@
         });
 
         // Save the diff
+        if (!_.isString(file.patch)) {
+            throw 'Unable to find patch string in commit details!';
+        }
         this.patch = file.patch;
 
         // Extract individual hunks from the diff and save them
