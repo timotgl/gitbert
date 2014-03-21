@@ -19,7 +19,6 @@
     }
 
     var _fetchUrlTemplate = _.template('<%= baseUrl %>gh/<%= user %>/<%= repo %>/<%= sha %>');
-    var _missingNewLineToken = '\\ No newline at end of file';
 
     // Helper function used to sort line numbers.
     var _compareNum = function (a, b) {
@@ -151,7 +150,7 @@
                 } else {
                     additions[buffer.shift()] = remainingChars;
                 }
-            } else if (line === _missingNewLineToken) {
+            } else if (GitBert.diffParser.isMissingNewLineToken(line)) {
 
             } else {
                 // Line common in old and new file

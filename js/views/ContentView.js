@@ -69,6 +69,9 @@
                 lineCssClass = 'lineDeleted';
                 deletions++;
                 lineNum = '';
+            } else if (GitBert.diffParser.isMissingNewLineToken(currLine)) {
+                deletions++;
+                return; // Don't render the missing newline message
             } else {
                 lineCssClass = '';
             }

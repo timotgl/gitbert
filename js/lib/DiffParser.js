@@ -16,6 +16,12 @@
         // The optional comma and second decimal results in messy logic when checking the matched groups.
         hunkHeaderDetail: /(-[^ ]+) (\+[^ ]+)/
     };
+    
+    var missingNewLineToken = '\\ No newline at end of file';
+    
+    parser.isMissingNewLineToken = function (line) {
+        return line === missingNewLineToken;
+    };
 
     parser.getHunkHeader = function (line) {
         var matches = line.match(re.hunkHeader),
