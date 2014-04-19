@@ -15,7 +15,14 @@ var koa = require('koa'),
     GitHubApiClient = require('github'),
     gh = new GitHubApiClient({version: '3.0.0'}),
     getCommits = thunkify(gh.repos.getCommits),
-    getCommit = thunkify(gh.repos.getCommit);
+    getCommit = thunkify(gh.repos.getCommit),
+    
+    // Restrict the fetching of commits to the following users and repos.
+    // Any combination of user/repo from these two objects is allowed.
+    ALLOWED_USERS = {'timotgl': true},
+    ALLOWED_REPOS = {'dummy': true},
+    
+    UNAUTHORIZED_USER_REPO_MSG = 'Sorry, you\'re not allowed to fetch commits for the given GitHub user or repository';
 
 // Take credentials from env vars and authenticate with GitHub API.
 gh.authenticate({
@@ -54,7 +61,23 @@ function getStaticFileUrl (relativeUrl) {
     return baseUrl + relativeUrl;
 };
 
+/**
+ * Determine if the requested GitHub user and repo are among the whitelisted ones.
+ *
+ * @param {string} user GitHub user account
+ * @param {string} repo Repository name
+ * @return {bool} true if both user and repo are whitelisted, false otherwise.
+ */
+function isRepoWhitelisted (user, repo) {
+    return ALLOWED_USERS.hasOwnProperty(user) && ALLOWED_REPOS.hasOwnProperty(repo)
+}
+
 function *fetchCommit (next) {
+    if (!isRepoWhitelisted(this.params.user, this.params.repo)) {
+        this.body = UNAUTHORIZED_USER_REPO_MSG;
+        return;
+    }
+    
     var commit = yield getCommit({
         user : this.params.user,
         repo : this.params.repo,
@@ -69,6 +92,11 @@ function *fetchCommit (next) {
  */
 function *fetchCommitsByFile (next) {
     var file = parseGitHubUrl(this.request.url);
+    
+    if (!isRepoWhitelisted(file.user, file.repo)) {
+        this.body = UNAUTHORIZED_USER_REPO_MSG;
+        return;
+    }
     
     // TODO: proper pagination handling
     file.per_page = 100;
