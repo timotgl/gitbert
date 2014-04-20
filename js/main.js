@@ -29,8 +29,7 @@
             if (model.sha === GitBert.commitsOrder[0]) {
                 // This is the first (oldest) commit. When it was fetched, we can render its diff.
                 deferred.then(function () {
-                    GitBert.contentView.renderBySha(model.sha);
-                    GitBert.navigationView.render(model);
+                    GitBert.eventDispatcher.dispatch('SHOW_COMMIT', model)
                 });
             }
             return deferred;

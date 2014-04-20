@@ -16,17 +16,16 @@
     /**
      * Retrieve the commit with the specified sha and render it.
      */
-    view.renderBySha = function (sha) {
-        var commit = GitBert.commits[sha];
-        var html = view.renderFullDiff(commit);
+    view.renderCommit = function (commitModel) {
+        var html = view.renderFullDiff(commitModel);
 
         view.elem.html(html);
 
         console.log(_logTemplate({
-            index: commit.index + 1,
+            index: commitModel.index + 1,
             total: GitBert.commitsOrder.length,
-            sha: sha,
-            msg: GitBert.utils.truncateString(commit.message, 40)
+            sha: commitModel.sha,
+            msg: GitBert.utils.truncateString(commitModel.message, 40)
         }));
     };
 
@@ -153,5 +152,7 @@
         });
 
         return _containerTemplate({rows: lines})
-    }
+    };
+    
+    GitBert.eventDispatcher.subscribeTo('SHOW_COMMIT', _.bind(view.renderCommit, view));
 }());
