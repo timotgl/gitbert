@@ -8,6 +8,7 @@
             <h1>{{ heading }}</h1>
             <h2>{{ fileText }} <a href="{{ fileUrl }}">{{ file }}</a></h2>
             <h3>{{ navHint }}</h3>
+            <section id="navigation"></section>
         </header>
         <section>
             <pre>
@@ -39,6 +40,7 @@
         <script src="{{ 'views/StatusView.js' | staticFileUrl }}"></script>
         <script src="{{ 'controllers/ContentController.js' | staticFileUrl }}"></script>
         <script src="{{ 'views/ContentView.js' | staticFileUrl }}"></script>
+        <script src="{{ 'views/NavigationView.js' | staticFileUrl }}"></script>
         <script src="{{ 'main.js' | staticFileUrl }}"></script>
         <script>
             GitBert.init({{ commitsJson }});
