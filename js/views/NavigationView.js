@@ -11,7 +11,7 @@
     var view = GitBert.navigationView;
 
     view.render = function (commitModel) {
-        view.elem.html(view.template({msg: commitModel.message}));
+        //view.elem.html(view.template({msg: commitModel.message}));
     };
     
     GitBert.eventDispatcher.subscribeTo('SHOW_COMMIT', view.render);
