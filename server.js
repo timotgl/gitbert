@@ -20,7 +20,7 @@ var koa = require('koa'),
     // Restrict the fetching of commits to the following users and repos.
     // Any combination of user/repo from these two objects is allowed.
     ALLOWED_USERS = {'timotgl': true},
-    ALLOWED_REPOS = {'dummy': true},
+    ALLOWED_REPOS = {'dummy': true, 'gitbert': true},
     
     UNAUTHORIZED_USER_REPO_MSG = 'Sorry, you\'re not allowed to fetch commits for the given GitHub user or repository';
 
