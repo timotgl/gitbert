@@ -14,5 +14,5 @@
         view.elem.html(view.template({msg: commitModel.message}));
     };
     
-    GitBert.eventDispatcher.subscribeTo('SHOW_COMMIT', _.bind(view.render, view));
+    GitBert.eventDispatcher.subscribeTo('SHOW_COMMIT', view.render);
 }());
